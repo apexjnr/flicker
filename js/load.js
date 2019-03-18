@@ -1,18 +1,21 @@
 $(document).ready(function(){
 
 
-function wrapWords(str, tmpl) {
+function t1(str, tmpl) {
   return str.replace(/\S+/g, tmpl || "<a class=\"tag\" href=\"https://www.flickr.com/photos/tags/$&\" target=\"_blank\">$&</a>");
+}
+function t2(str, tmpl) {
+  return str.replace(/\S+/g, tmpl || "<a class=\"nav-link\" href=\"https://www.flickr.com/photos/tags/$&\" target=\"_blank\">$&</a>");
 }
 
 function load_posts(){
   $.getJSON('data.json', function(data) {
 
-  var items = [];
+  var tags_array = [];
 
     $.each( data.items, function( key, val ) {
-      $.each(val.items, function(){
-      	//console.log(this)
+      	$.each(val.items, function(){
+	      	//console.log(this)
       		var dsc = this.description.replace(/<img[^>]*>/g,"");
 
       		const manual_post = ({title, image, author, description, link, tags, profile}) => `
@@ -36,7 +39,7 @@ function load_posts(){
               { 
                 title: this.title,
                 image: this.media.m,
-                tags: wrapWords(this.tags),
+                tags: t1(this.tags),
                 author: this.author.match(/"([^"]+)"/)[1],
                 description: dsc,
                 link: this.link,
@@ -46,8 +49,16 @@ function load_posts(){
                 // img:,
               },
             ].map(manual_post).join(''));
-      });
-    });
+
+            add_tag = t2(this.tags);
+
+            tags_array.indexOf(add_tag) === -1 ? tags_array.push(add_tag) : console.log("This item already exists");
+      	});
+    });	
+
+	$.each( tags_array, function( key, val ) {
+		$('#list').append(val);
+	});	
 
   });
 }
